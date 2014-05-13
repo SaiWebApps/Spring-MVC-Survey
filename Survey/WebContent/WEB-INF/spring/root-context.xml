@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	                    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	                    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->	
+	<!-- User Bean: Mapped to the User class -->
+	<bean id="userBean" class="com.webapp.models.User">
+	  <property name="email" value="" />
+	  <property name="password" value="" />
+	  <property name="salt" value="" />
+	</bean>
+	
+	<!--  Survey Bean: Mapped to the Survey class -->
+	<bean id="sBean" class="com.webapp.models.Survey">
+	  <property name="userEmail" value="" />
+	  <property name="surveyTitle" value="" />
+	  <property name="dateCreated" value="" />
+	</bean>		
+	  	
+	<!-- Question Bean: Mapped to the Question class -->
+	<bean id="qBean" class="com.webapp.models.Question">
+	  <property name="question" value="" />
+	  <property name="surveyId" value="0" />
+	</bean>		
+	
+	<!--  ResponseOption Bean: Mapped to the ResponseOption class -->
+	<bean id="rBean" class="com.webapp.models.ResponseOption">
+	 	<property name="questionId" value="0" />
+	 	<property name="response" value="" />
+	</bean>
+	
+	<!-- Spring 3 Configuration For Hibernate 4 -->
+	<bean id="sqlSrc" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+       <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+       <property name="url" value="jdbc:mysql://localhost:3306/survey_db" />
+    </bean>
+       
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+       <property name="dataSource" ref="sqlSrc"></property>
+       <property name="packagesToScan" value="com.webapp.models" />
+       <property name="hibernateProperties">
+          <props>
+            <prop key="hibernate.dialect"> org.hibernate.dialect.MySQL5Dialect </prop>
+            <prop key="hibernate.show_sql"> true </prop>
+            <prop key="hibernate.hbm2ddl.auto"> create </prop>
+             <prop key="hibernate.current_session_context_class">
+                org.hibernate.context.internal.ThreadLocalSessionContext
+             </prop>
+          </props>
+       </property>
+    </bean>
+    	    
+    <!-- UserDAO configuration -->
+    <bean id="userDAO" class="com.webapp.models.UserDAO">
+   	   <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+      
+    <!-- SurveyDAO configuration -->
+    <bean id="surveyDAO" class="com.webapp.models.SurveyDAO">
+   	   <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+    <!--  QuestionDAO configuration -->
+    <bean id="qDAO" class="com.webapp.models.QuestionDAO">
+       <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+    
+    <tx:annotation-driven transaction-manager="transactionManager" /> 
+    
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+      <property name="dataSource" ref="sqlSrc" />
+      <property name="sessionFactory" ref="sessionFactory" />
+    </bean>    
+</beans>
